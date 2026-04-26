@@ -1,3 +1,12 @@
+const express = require("express");
+const fetch = require("node-fetch");
+
+const app = express();
+
+app.get("/", (req, res) => {
+    res.send("API is running. Go to /games");
+});
+
 app.get("/games", async (req, res) => {
     try {
         const gamesRes = await fetch(
@@ -18,3 +27,6 @@ app.get("/games", async (req, res) => {
         res.status(500).json({ error: "Failed to fetch games" });
     }
 });
+
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => console.log("Server running on port " + PORT));
