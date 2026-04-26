@@ -3,11 +3,12 @@ const fetch = require("node-fetch");
 
 const app = express();
 
-// Home route
+// homepage
 app.get("/", (req, res) => {
-    res.send("API is running. Go to /games");
+    res.send("API running - go to /games");
 });
-// game route
+
+// debug route (raw Roblox response)
 app.get("/games", async (req, res) => {
     try {
         const response = await fetch(
@@ -24,11 +25,17 @@ app.get("/games", async (req, res) => {
 
         console.log("ROBLOX RESPONSE:", data);
 
-        // 👇 send RAW data (no mapping yet)
-        res.json(data);
+        res.json(data); // send raw response
 
     } catch (err) {
-        console.error("ERROR:", err.message);
+        console.error("ERROR:", err);
         res.status(500).json({ error: "Failed to fetch games" });
     }
+});
+
+// IMPORTANT: this keeps server alive
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
