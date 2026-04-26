@@ -8,12 +8,12 @@ app.get("/", (req, res) => {
     res.send("API running - go to /games");
 });
 
-// Games route
+// Games route (WORKING VERSION)
 app.get("/games", async (req, res) => {
     try {
-        // Step 1: get games
+        // Step 1: search for games
         const response = await fetch(
-            "https://games.roblox.com/v1/games?sortOrder=Desc&limit=10",
+            "https://games.roblox.com/v1/games/search?keyword=&limit=10",
             {
                 headers: {
                     "User-Agent": "Mozilla/5.0"
@@ -24,20 +24,21 @@ app.get("/games", async (req, res) => {
         const data = await response.json();
 
         if (!data.data) {
+            console.error("Bad response:", data);
             return res.status(500).json({ error: "Bad response from Roblox" });
         }
 
         // Step 2: get universe IDs
         const universeIds = data.data.map(game => game.id);
 
-        // Step 3: get thumbnails
+        // Step 3: fetch thumbnails
         const thumbsRes = await fetch(
             `https://thumbnails.roblox.com/v1/games/icons?universeIds=${universeIds.join(",")}&size=150x150&format=Png&isCircular=false`
         );
 
         const thumbsData = await thumbsRes.json();
 
-        // Step 4: combine data
+        // Step 4: combine everything
         const games = data.data.map(game => {
             const thumb = thumbsData.data.find(t => t.targetId === game.id);
 
