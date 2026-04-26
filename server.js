@@ -1,3 +1,14 @@
+const express = require("express");
+const fetch = require("node-fetch");
+
+const app = express();
+
+// Home route
+app.get("/", (req, res) => {
+    res.send("API is running. Go to /games");
+});
+
+// Games route
 app.get("/games", async (req, res) => {
     try {
         const response = await fetch(
@@ -10,11 +21,12 @@ app.get("/games", async (req, res) => {
             }
         );
 
-        if (!response.ok) {
-            throw new Error("Request failed: " + response.status);
-        }
-
         const data = await response.json();
+
+        if (!data.games) {
+            console.error("Bad response:", data);
+            return res.status(500).json({ error: "Invalid API response" });
+        }
 
         const games = data.games.map(game => ({
             name: game.name,
@@ -24,7 +36,13 @@ app.get("/games", async (req, res) => {
         res.json(games);
 
     } catch (err) {
-        console.error("ERROR:", err);
+        console.error("ERROR:", err.message);
         res.status(500).json({ error: "Failed to fetch games" });
     }
+});
+
+// Start server
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log("Server running on port " + PORT);
 });
